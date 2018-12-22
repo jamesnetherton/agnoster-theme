@@ -10,8 +10,12 @@
 #
 # In addition, I recommend the
 # [Solarized theme](https://github.com/altercation/solarized/) and, if you're
-# using it on Mac OS X, [iTerm 2](http://www.iterm2.com/) over Terminal.app -
+# using it on Mac OS X, [iTerm 2](https://iterm2.com/) over Terminal.app -
 # it has significantly better color fidelity.
+#
+# If using with "light" variant of the Solarized color schema, set
+# SOLARIZED_THEME variable to "light". If you don't specify, we'll assume
+# you're using the "dark" variant.
 #
 # # Goals
 #
@@ -74,7 +78,7 @@ prompt_git() {
     dirty=$(parse_git_dirty)
     ref=$(git symbolic-ref HEAD 2> /dev/null) || ref="➦ $(git show-ref --head -s --abbrev |head -n1 2> /dev/null)"
     if [[ -n $dirty ]]; then
-      prompt_segment yellow red
+      prompt_segment 190 022
     else
       prompt_segment green white
     fi
@@ -98,7 +102,7 @@ prompt_git() {
     zstyle ':vcs_info:*' formats ' %u%c'
     zstyle ':vcs_info:*' actionformats ' %u%c'
     vcs_info
-    echo -n "${ref/refs\/heads\// }${vcs_info_msg_0_%% }${mode}"
+    echo -n "%B${ref/refs\/heads\// }${vcs_info_msg_0_%% }${mode}%b"
   fi
 }
 
@@ -116,7 +120,7 @@ prompt_hg() {
         st='±'
       else
         # if working copy is clean
-        prompt_segment green black
+        prompt_segment green $CURRENT_FG
       fi
       echo -n $(hg prompt "☿ {rev}@{branch}") $st
     else
@@ -130,7 +134,7 @@ prompt_hg() {
         prompt_segment yellow black
         st='±'
       else
-        prompt_segment green black
+        prompt_segment green $CURRENT_FG
       fi
       echo -n "☿ $rev@$branch" $st
     fi
@@ -139,7 +143,7 @@ prompt_hg() {
 
 # Dir: current working directory
 prompt_dir() {
-  prompt_segment blue white '%~'
+  prompt_segment black white '%B%c%b'
 }
 
 # Virtualenv: current working virtualenv
@@ -155,8 +159,8 @@ prompt_virtualenv() {
 # - am I root
 # - are there background jobs?
 prompt_status() {
-  local symbols
-  symbols=()
+  local -a symbols
+
   [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}✘"
   [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}⚡"
   [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{cyan}%}⚙"
